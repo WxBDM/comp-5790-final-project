@@ -9,16 +9,12 @@ import matplotlib.pyplot as plt
 
 class GraphText:
     
-    def __init__(self, ax, default_labels = False):
+    def __init__(self, ax):
         self.ax = ax
         
         self.title("TITLE GOES HERE.")
         self._y_axis_offset = 0
         self._x_labels_visible = False
-        
-        if default_labels:
-            self.upperRightAbove('www.tornadotalk.com')
-            self.upperRightBelow('© 2020 Tornado Talk')
     
     def title(self, text):
         bbox_props = dict(boxstyle = "square,pad=0.3", fc = "white", ec = "black", 
