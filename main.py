@@ -23,6 +23,7 @@ from graph import GraphText
 from alexnet import AlexNet
 import vgg
 import resnet as rn
+import densenet as dn
 
 # =========================
 # == VARIABLES TO CHANGE ==
@@ -49,9 +50,11 @@ show_graphs = False
 # AlexNet:  model = AlexNet()
 # VGG:      model = [vgg.vgg11(), vgg.vgg11_bn(), vgg.vgg13(), vgg.vgg13_bn(),
 #           vgg.vgg16(), vgg.vgg16_bn(), vgg.vgg19(), vgg.vgg19_bn()]
-# ResNet:   model = [rn.resnet18, rn.resnet34, rn.resnet50, rn.resnet101, 
-#               rn.resnet152, rn.resnext50_32x4d, rn.resnext101_32x8d,
-#               rn.wide_resnet50_2, rn.wide_resnet101_2]
+# ResNet:   model = [rn.resnet18(), rn.resnet34(), rn.resnet50(), rn.resnet101(), 
+#               rn.resnet152(), rn.resnext50_32x4d(), rn.resnext101_32x8d(),
+#               rn.wide_resnet50_2(), rn.wide_resnet101_2()]
+# DenseNet: model = [dn.densenet121(), dn.densenet161(), dn.densenet169(),
+#               dn.densenet201()]
 # =========================
 
 
