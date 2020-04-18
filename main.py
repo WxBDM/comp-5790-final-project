@@ -6,18 +6,20 @@ Created on Fri Apr 17 09:44:03 2020
 @author: Brandon
 """
 
-# Initial setup - lots of imports.
-
+# General imports
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
 
+# torch imports
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
 
+# package imports
+from graph import GraphText
 from alexnet import AlexNet
 import vgg
 import resnet as rn
@@ -49,7 +51,7 @@ import resnet as rn
 num_epoches = 10
 learning_rate = 0.0001
 weight_decay = 0.0005
-model = vgg.vgg13_bn() # the model you want to run; see below for model options
+model = AlexNet() # the model you want to run; see below for model options
 
 size = 224
 batch_size = 32
@@ -58,8 +60,8 @@ num_workers = 8 # pytorch data loader
 train_dir = 'train/'
 val_dir = 'val/'
 
-save_csv = True
-show_graphs = True
+save_csv = False
+show_graphs = False
 
 # =========================
 
@@ -174,27 +176,51 @@ model = train(model, data_loader, criterion, optimizer, scheduler, num_epochs = 
 
 n_datapoints = len(model.train_epoch_loss)
 
+# save it in a dictionary, recommended to export by having save_csv = True
+d = {'neuralnet' : model.name,
+     'lr' : [learning_rate] * n_datapoints,
+     'batch_size' : [batch_size] * n_datapoints,
+     'weight_decay' : [weight_decay] * n_datapoints,
+     'train_epoch_loss' : model.train_epoch_loss, 
+     'train_epoch_acc' : [model.train_epoch_acc[i].item() for i in 
+                                  range(len(model.train_epoch_acc))], 
+     'val_epoch_loss' : model.val_epoch_loss, 
+     'val_epoch_acc' : [model.val_epoch_acc[i].item() for i in 
+                            range(len(model.val_epoch_acc))]}
+
 if save_csv:
     # put values into csv file, manually add in learning rate and weight decay.
-    d = {'neuralnet' : [model.name] * n_datapoints,
-         'lr' : [learning_rate] * n_datapoints,
-         'batch_size' : [batch_size] * n_datapoints,
-         'weight_decay' : [weight_decay] * n_datapoints,
-         'train_epoch_loss' : model.train_epoch_loss, 
-         'train_epoch_acc' : [model.train_epoch_acc[i].item() for i in 
-                                  range(len(model.train_epoch_acc))], 
-         'val_epoch_loss' : model.val_epoch_loss, 
-         'val_epoch_acc' : [model.val_epoch_acc[i].item() for i in 
-                                range(len(model.val_epoch_acc))]}
+    
+    # reformat the data a bit
+    n_datapoints = len(model.train_epoch_loss)
+    dict_vals = ['neuralnet', 'lr', 'weight_decay', 'batch_size']
+    for val in dict_vals:
+        d[val] = [d[val]] * n_datapoints
     
     df = pd.DataFrame(data=d)
     df.to_csv("info.csv")
+    
+    # reset the values in case show_graphs is true (future compatability, too)
+    for val in dict_vals: 
+        d[val] = val
 
 if show_graphs:
     
     # Loss function: training
-    plt.plot(d['train_epoch_loss'], list(range(n_datapoints)))
-    plt.title("Loss function - Training {}".format(model.name))
-    plt.ylabel()
-    plt.show()
-    pass
+    y_axis = d['training_epoch_loss']
+    x_axis = range(len(y_axis))
+    plt.plot(x_axis, y_axis, color = 'blue',  label = 'Training Loss')
+    plt.plot(x_axis, y_axis, color = 'black', label = 'Training Accuracy')
+    plt.plot(x_axis, y_axis, color = 'green', label = 'Validation Accuracy')
+    
+    # text-related stuff; see graph.py
+    graph = GraphText(plt.gca())
+    graph.title("Loss - Training {}".format(d['neuralnet'][0])) # replace with model.name
+    upper_right_txt = "Learning Rate: {}\nBatch Size: {}".format(d['lr'][0], d['batch_size'][0])
+    graph.upperRightBelow(upper_right_txt)
+    graph.x_axis_label("epoch")
+    graph.y_axis_label("Training - Loss")
+    graph.show_legend()
+    plt.grid(which = 'both', alpha = 0.4, ls = "--")
+    plt.savefig('loss_function.png', dpi=300, format='png', bbox_inches='tight', facecolor = '#F5F5F5')
+    
