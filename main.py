@@ -24,27 +24,6 @@ from alexnet import AlexNet
 import vgg
 import resnet as rn
 
-# ===== ONE TIME RUN =====
-# run the below code in the interpreter before starting.
-
-#source_dir = 'train/'
-#dest_dir = 'val/'
-#dirs = os.listdir(source_dir)
-#dirs.sort()
-#
-#for dir in dirs:
-#    if not os.path.isdir(dest_dir + dir):
-#        os.makedirs(dest_dir + dir)
-#        path_source = source_dir + dir
-#        path_dest = dest_dir + dir
-#        images = os.listdir(path_source)
-#        
-#        for i in range(10):
-#            shutil.copy(path_source + '/' + images[i], path_dest)
-
-# =========================
-
-
 # =========================
 # == VARIABLES TO CHANGE ==
 
