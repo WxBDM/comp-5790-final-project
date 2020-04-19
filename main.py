@@ -30,10 +30,10 @@ plt.close('all')
 # =========================
 # == VARIABLES TO CHANGE ==
 
-num_epoches = 10
-learning_rate = 0.01
+num_epoches = 3
+learning_rate = 0.00001
 weight_decay = 0.0005
-model = rn.resnet34() # the model you want to run; see below for model options
+model = AlexNet() # the model you want to run; see below for model options
 
 size = 224
 batch_size = 16
@@ -98,6 +98,7 @@ def graph_accuracy(d):
     graph.y_axis_label("Accuracy")
     graph.show_legend()
     plt.grid(which = 'both', alpha = 0.4, ls = "--")
+    plt.ylim(bottom = 0, top = 1)
     plt.savefig('accuracy_{}.png'.format(d['neuralnet']), dpi=300, format='png', 
                 bbox_inches='tight')
     
@@ -215,7 +216,7 @@ data_loader = {
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr = learning_rate)
+optimizer = optim.Adam(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True)
 
 model = model.to(device)
