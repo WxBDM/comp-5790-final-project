@@ -33,10 +33,10 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # =========================
 # == VARIABLES TO CHANGE ==
 
-num_epoches = 3
+num_epoches = 2
 learning_rate = 0.00001
 weight_decay = 0.0005
-model = AlexNet() # the model you want to run; see below for model options
+model = AlexNet(num_classes=2) # the model you want to run; see below for model options
 
 size = 224
 batch_size = 16
@@ -137,6 +137,15 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
             running_loss = 0
             running_corrects = 0
 
+            #Confusion Matrix
+            true_positives = 0
+            true_negatives = 0
+            false_positives = 0
+            false_negatives  = 0
+
+            all_positives = 0
+            all_negatives = 0
+
             if phase == 'train':
                 model.train()
             else:
@@ -166,6 +175,26 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
                         
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
+
+                # Confusion Matrix Assume Negative = 0 and Positive = 1
+                # Really messy, I'm sorry
+                if phase == 'val':
+                    for cm_predict, cm_label in zip(preds, labels):
+                        cm_pred_itm = cm_predict.item()
+                        cm_label_itm = cm_label.item()
+                        if cm_label == 0:
+                            all_negatives += 1
+                            if cm_label_itm == cm_pred_itm:
+                                true_negatives += 1
+                            else:
+                                false_positives += 1
+                        else:
+                            all_positives += 1
+                            if cm_label_itm == cm_pred_itm:
+                                true_positives += 1
+                            else:
+                                false_negatives += 1
+
                 
             epoch_loss = running_loss / len(data_loader[phase].dataset)
             epoch_acc = running_corrects.double() / len(data_loader[phase].dataset)
@@ -178,6 +207,13 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
                 model.val_epoch_loss.append(epoch_loss)
                 model.val_epoch_acc.append(epoch_acc)
                 scheduler.step(loss.item())
+
+                model.val_true_positives.append(true_negatives / all_positives)
+                model.val_true_negatives.append(true_positives / all_negatives)
+                model.val_false_positives.append(false_positives / all_positives)
+                model.val_false_negatives.append(false_negatives / all_negatives)
+                model.num_positives = all_positives
+                model.num_negatives = all_negatives
             else:
                 train_epoch_loss.append((epoch_loss, epoch_acc))
                 model.train_epoch_loss.append(epoch_loss)
@@ -238,7 +274,14 @@ d = {'neuralnet' : model.name,
                                   range(len(model.train_epoch_acc))], 
      'val_epoch_loss' : model.val_epoch_loss, 
      'val_epoch_acc' : [model.val_epoch_acc[i].item() for i in 
-                            range(len(model.val_epoch_acc))]}
+                            range(len(model.val_epoch_acc))],
+     'true_negatives': model.val_true_negatives,
+     'true_positives': model.val_true_positives,
+     'false_negatives': model.val_false_negatives,
+     'false_positives': model.val_false_positives,
+     'num_negatives': model.num_negatives,
+     'num_positives': model.num_positives
+}   
 
 if save_csv: 
     save_csv(model, d)

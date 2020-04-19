@@ -49,6 +49,10 @@ class AlexNet(nn.Module):
         self.val_epoch_acc = []
         self.name = 'AlexNet'
         
+        self.val_true_positives = []
+        self.val_true_negatives = []
+        self.val_false_positives = []
+        self.val_false_negatives = []
         
     def forward(self, x):
         x = self.conv_base(x)
