@@ -10,6 +10,7 @@ Created on Fri Apr 17 09:44:03 2020
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
+import os
 
 # torch imports
 import torch
@@ -26,6 +27,8 @@ import resnet as rn
 import densenet as dn
 
 plt.close('all')
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # =========================
 # == VARIABLES TO CHANGE ==
