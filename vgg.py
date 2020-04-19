@@ -31,6 +31,12 @@ class VGG(nn.Module):
         self.train_epoch_acc = []
         self.val_epoch_loss = []
         self.val_epoch_acc = []
+
+        self.val_true_positives = []
+        self.val_true_negatives = []
+        self.val_false_positives = []
+        self.val_false_negatives = []
+
         self.name = 'VGG'
 
     def forward(self, x):
