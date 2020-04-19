@@ -34,11 +34,13 @@ class GraphText:
     def y_axis_label(self, val, **kwargs):
         self.ax.set_ylabel(val, **kwargs)
     
-    def show_legend(self):
+    def show_legend(self, n_columns = 2, **kwargs):
         if not self._x_labels_visible:
-            self.ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.07), shadow=True, ncol=3)
+            self.ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.07), 
+                           shadow=True, ncol = n_columns, **kwargs)
         else:
-            self.ax.legend(loc = 'upper center', bbox_to_anchor=(0.5, -0.13), shadow=True, ncol=3)
+            self.ax.legend(loc = 'upper center', bbox_to_anchor=(0.5, -0.13), 
+                           shadow=True, ncol = n_columns, **kwargs)
 
     def upperLeftAbove(self, text):
         self.ax.text(0.01, 1.01, text, horizontalalignment = 'left', verticalalignment = 'bottom',
