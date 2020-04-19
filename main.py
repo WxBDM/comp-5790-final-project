@@ -138,7 +138,10 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
             true_positives = 0
             true_negatives = 0
             false_positives = 0
-            false_negatives  = 0 
+            false_negatives  = 0
+
+            all_positives = 0
+            all_negatives = 0
 
             if phase == 'train':
                 model.train()
@@ -171,18 +174,19 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
                 running_corrects += torch.sum(preds == labels.data)
 
                 # Confusion Matrix Assume Negative = 0 and Positive = 1
+                # Really messy, I'm sorry
                 if phase == 'val':
-                    print(preds)
-
                     for cm_predict, cm_label in zip(preds, labels):
                         cm_pred_itm = cm_predict.item()
                         cm_label_itm = cm_label.item()
                         if cm_label == 0:
+                            all_negatives += 1
                             if cm_label_itm == cm_pred_itm:
                                 true_negatives += 1
                             else:
                                 false_positives += 1
                         else:
+                            all_positives += 1
                             if cm_label_itm == cm_pred_itm:
                                 true_positives += 1
                             else:
@@ -191,8 +195,6 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
                 
             epoch_loss = running_loss / len(data_loader[phase].dataset)
             epoch_acc = running_corrects.double() / len(data_loader[phase].dataset)
-
-            
             
             print('Epoch {}/{} - {} Loss: {:.4f} Acc: {:.4f}'.format(epoch+1, 
                   num_epochs, phase, epoch_loss, epoch_acc))
@@ -203,10 +205,12 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
                 model.val_epoch_acc.append(epoch_acc)
                 scheduler.step(loss.item())
 
-                model.val_true_positives.append(true_negatives / len(data_loader[phase].dataset))
-                model.val_true_negatives.append(true_positives / len(data_loader[phase].dataset))
-                model.val_false_positives.append(false_positives / len(data_loader[phase].dataset))
-                model.val_false_negatives.append(false_negatives / len(data_loader[phase].dataset))
+                model.val_true_positives.append(true_negatives / all_positives)
+                model.val_true_negatives.append(true_positives / all_negatives)
+                model.val_false_positives.append(false_positives / all_positives)
+                model.val_false_negatives.append(false_negatives / all_negatives)
+                model.num_positives = all_positives
+                model.num_negatives = all_negatives
             else:
                 train_epoch_loss.append((epoch_loss, epoch_acc))
                 model.train_epoch_loss.append(epoch_loss)
@@ -272,6 +276,8 @@ d = {'neuralnet' : model.name,
      'true_positives': model.val_true_positives,
      'false_negatives': model.val_false_negatives,
      'false_positives': model.val_false_positives,
+     'num_negatives': model.num_negatives,
+     'num_positives': model.num_positives
 }   
 
 if save_csv: 
