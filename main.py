@@ -128,11 +128,12 @@ def train(model, data_loader, criterion, optimizer, scheduler, num_epochs=25):
     val_epoch_loss = []
     
     for epoch in range(num_epochs):
-        running_loss = 0
-        running_corrects = 0
-        
+    
         # You perform validation test after every epoch
         for phase in ['train', 'val']:
+            running_loss = 0
+            running_corrects = 0
+
             if phase == 'train':
                 model.train()
             else:
