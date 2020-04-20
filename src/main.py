@@ -10,6 +10,7 @@ Created on Fri Apr 17 09:44:03 2020
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
+import os
 
 # torch imports
 import torch
@@ -27,11 +28,13 @@ import densenet as dn
 
 plt.close('all')
 
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 # =========================
 # == VARIABLES TO CHANGE ==
 
-num_epoches = 2
-learning_rate = 0.00001
+num_epoches = 8
+learning_rate = 0.0000075
 weight_decay = 0.0005
 model = AlexNet(num_classes=2) # the model you want to run; see below for model options
 
@@ -69,7 +72,7 @@ def graph_training_loss(d):
     # text-related stuff; see graph.py
     graph = GraphText(plt.gca())
     graph.title("Loss - Training {}".format(d['neuralnet']))
-    upper_right_txt = "Learning Rate: {}\nBatch Size: {}".format(d['lr'][0], d['batch_size'][0])
+    upper_right_txt = "Learning Rate: {}\nBatch Size: {}".format(d['lr'], d['batch_size'])
     graph.upperRightBelow(upper_right_txt)
     graph.x_axis_label("epoch")
     graph.y_axis_label("Training - Loss")
@@ -92,7 +95,7 @@ def graph_accuracy(d):
     
     graph = GraphText(plt.gca())
     graph.title("Accuracy: {}".format(d['neuralnet']))
-    upper_right_txt = "Learning Rate: {}\nBatch Size: {}".format(d['lr'][0], d['batch_size'][0])
+    upper_right_txt = "Learning Rate: {}\nBatch Size: {}".format(d['lr'], d['batch_size'])
     graph.upperRightBelow(upper_right_txt)
     graph.x_axis_label("epoch")
     graph.y_axis_label("Accuracy")
@@ -263,9 +266,9 @@ n_datapoints = len(model.train_epoch_loss)
 
 # save it in a dictionary, recommended to export by having save_csv = True
 d = {'neuralnet' : model.name,
-     'lr' : learning_rate * n_datapoints,
-     'batch_size' : batch_size * n_datapoints,
-     'weight_decay' : weight_decay * n_datapoints,
+     'lr' : learning_rate,
+     'batch_size' : batch_size,
+     'weight_decay' : weight_decay,
      'train_epoch_loss' : model.train_epoch_loss, 
      'train_epoch_acc' : [model.train_epoch_acc[i].item() for i in 
                                   range(len(model.train_epoch_acc))], 
@@ -280,9 +283,9 @@ d = {'neuralnet' : model.name,
      'num_positives': model.num_positives
 }   
 
-if save_csv: 
-    save_csv(model, d)
-
 if graph:
     graph_training_loss(d)
     graph_accuracy(d)
+
+if save_csv: 
+    save_csv(model, d)
